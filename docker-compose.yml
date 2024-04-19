@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ADMIN
+      MYSQL_DATABASE: CeliaCinema
+      MYSQL_USER: Karolis
+      MYSQL_PASSWORD: ADMIN
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  tomcat:
+    image: tomcat:9
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./webapps:/usr/local/tomcat/webapps
+      - JDBC_DRIVER:/usr/local/tomcat/lib
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
+  JDBC_DRIVER:
