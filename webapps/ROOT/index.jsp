@@ -1,11 +1,33 @@
+<%-- 
+    CONTROLADOR FRONTAL DE LA APLICACIÓN WEB.
+    ----------------------------------------
+    *** ¡¡ATENCIÓN!! ¡ESTA *NO* ES LA MEJOR FORMA DE HACERLO! ***
+                      Se trata de una primera aproximación a una webapp
+                      donde mezclaremos todo el contenido de modelos, vistas y controladores 
+                      en un único archivo JSP. El curso que viene aprenderéis
+                      formas más adecuadas de organizar el código.
+ --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.sql.*" %>
-<%
+<%@include file="header.jsp" %>
+<% 
+    // Vamos a ver si en la petición se nos ha indicado acción y controlador.
+    // Si no, usaremos un controlador y una acción por defecto.
+    String action = request.getParameter("action");    
+
+    if ((action == null) || action.equals("")) {
+        action = "showAllMovies";       // Acción por defecto
+    }
+
+    /**************** MOVIES *******************/
+
+    // ----showAllMovies----
+    if (action.equals("showAllMovies")) {
         try {
             // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
-            out.print("Establecida conexión con la BD");
+            
             // Ejecutamos un SELECT
             Statement st = con.createStatement();
             String sql = "SELECT * FROM movies";
@@ -34,6 +56,72 @@
         } catch (Exception e) {
             out.println("Error al acceder a la BD: " + e.toString());
         }
+    }
+
+    // ----showMovie----
+    if (action.equals("showMovie")) {
+        // Aquí irá el código para mostrar una sola película
+        out.println("Opción en desarrollo: mostrará los datos de una película en concreto.");
+    }
+
+    // ----formNewMovie----
+    if (action.equals("formNewMovie")) {
+        // Aquí irá el código para mostrar el formulario de nueva película
+        out.println("Opción en desarrollo: mostrará un formulario para crear una nueva película.");
+    }
+
+    // ----newMovie----
+    if (action.equals("newMovie")) {
+        // Aquí irá el código para crear una nueva película
+        out.println("Opción en desarrollo: creará una nueva película en la base de datos.");
+    }
+
+    // ----formEditMovie----
+    if (action.equals("formEditMovie")) {
+        // Aquí irá el código para mostrar el formulario de edición de película
+        out.println("Opción en desarrollo: mostrará un formulario para editar una película.");
+    }
+
+    // ----editMovie----
+    if (action.equals("editMovie")) {
+        // Aquí irá el código para editar una película
+        out.println("Opción en desarrollo: editará una película en la base de datos.");
+    }
+
+    // ----deleteMovie----
+    if (action.equals("deleteMovie")) {
+        // Aquí irá el código para borrar una película
+        out.println("Opción en desarrollo: borrará una película de la base de datos.");
+    }
+
+
+    /**************** PEOPLE *******************/
+
+    // ----showAllPeople----
+    if (action.equals("showAllPeople")) {
+        // Aquí irá el código para mostrar todas las personas
+        out.println("Opción en desarrollo: mostrará todas las personas de la base de datos.");
+    }
+
+    // ----showPerson----
+    if (action.equals("showPerson")) {
+        // Aquí irá el código para mostrar una persona
+        out.println("Opción en desarrollo: mostrará los datos de una persona en concreto.");
+    }
+
+    // ----formNewPerson----
+    if (action.equals("formNewPerson")) {
+        // Aquí irá el código para mostrar el formulario de nueva persona
+        out.println("Opción en desarrollo: mostrará un formulario para crear una nueva persona.");
+    }
+
+    // ----newPerson----
+    if (action.equals("newPerson")) {
+        // Aquí irá el código para crear una nueva persona
+        out.println("Opción en desarrollo: creará una nueva persona en la base de datos.");
+    }
+
+    // Etc.
+
 %>
-</body>
-</html>
+<%@include file="footer.jsp" %>
