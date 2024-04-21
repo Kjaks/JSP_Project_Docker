@@ -38,7 +38,7 @@ th, td {
   font-size: 18px;
 }
 
-.header a {
+.header button {
   color: #fff;
   text-decoration: none;
   padding: 5px 10px;
@@ -46,7 +46,7 @@ th, td {
   background-color: #555;
 }
 
-.header a:hover {
+.header button:hover {
   background-color: #777;
 }
 
@@ -63,12 +63,12 @@ th, td {
 <body>
 
 <div class="header">
-  <h1>Aquí irá el título de la página</h1>
-  <p>Aquí puede ir una descripción breve de la página</p>
+  <h1>CELIA CINEMA</h1>
+  <p>Las mejores peliculas en Celia Cinema!</p>
   <nav>
-    <a href="https://educacionadistancia.juntadeandalucia.es/centros/almeria/pluginfile.php/962384/mod_folder/content/0/Ejercicio4%20%28principio%20de%20soluci%C3%B3n%29/index.jsp">Películas</a>
-    <a href="https://educacionadistancia.juntadeandalucia.es/centros/almeria/pluginfile.php/962384/mod_folder/content/0/Ejercicio4%20%28principio%20de%20soluci%C3%B3n%29/index.jsp?action=showAllPeople">Personas</a>
-    <a href="#">Otro menú</a>
-    <a href="#">Otro menú</a>
+    <button>Películas</button>
+    <button>Personas</button>
+    <button>Otro menú</button>
+    <button>Otro menú</button>
   </nav>
 </div>
