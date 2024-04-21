@@ -94,15 +94,78 @@
 
     // ----formNewMovie----
     if (action.equals("formNewMovie")) {
-        // Aquí irá el código para mostrar el formulario de nueva película
-        out.println("Opción en desarrollo: mostrará un formulario para crear una nueva película.");
+        out.println("<div class='container'>");
+        out.println("<h2>Nueva Película</h2>");
+        out.println("<form action='' method='post'>");
+        out.println("<label for='title'>Título:</label><br>");
+        out.println("<input type='text' id='title' name='title'><br>");
+        out.println("<label for='year'>Año:</label><br>");
+        out.println("<input type='text' id='year' name='year'><br>");
+        out.println("<label for='country'>País:</label><br>");
+        out.println("<input type='text' id='country' name='country'><br>");
+        out.println("<label for='duration'>Duración (minutos):</label><br>");
+        out.println("<input type='text' id='duration' name='duration'><br>");
+        out.println("<label for='poster'>URL del cartel:</label><br>");
+        out.println("<input type='text' id='poster' name='poster'><br><br>");
+        out.println("<input type='submit' value='Guardar'><br>");
+        out.println("</form>");
+        out.println("</div>");
     }
+
 
     // ----newMovie----
     if (action.equals("newMovie")) {
-        // Aquí irá el código para crear una nueva película
-        out.println("Opción en desarrollo: creará una nueva película en la base de datos.");
+        String title = request.getParameter("title");
+        String yearStr = request.getParameter("year");
+        String country = request.getParameter("country");
+        String durationStr = request.getParameter("duration");
+        String poster = request.getParameter("poster");
+
+        // Validar que los campos no estén vacíos y que year y duration sean ints
+        if (title != null && !title.isEmpty() && yearStr != null && !yearStr.isEmpty()
+                && country != null && !country.isEmpty() && durationStr != null && !durationStr.isEmpty()) {
+            try {
+                int year = Integer.parseInt(yearStr);
+                int duration = Integer.parseInt(durationStr);
+
+                // Conectamos con la BD
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+                // Ejecutamos un INSERT para agregar la nueva película
+                String sql = "INSERT INTO movies (title, year, country, duration, poster) VALUES (?, ?, ?, ?, ?)";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setString(1, title);
+                ps.setInt(2, year);
+                ps.setString(3, country);
+                ps.setInt(4, duration);
+                ps.setString(5, poster);
+
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected > 0) {
+                    // Si se inserta correctamente, redirigimos a la página de éxito
+                    response.sendRedirect("index.jsp");
+                } else {
+                    // Mostramos una alerta en caso de error al agregar la película
+                    out.println("<script>alert('Error al agregar la película');</script>");
+                }
+
+                // Cerramos los recursos
+                ps.close();
+                con.close();
+            } catch (NumberFormatException e) {
+                // Mostramos una alerta si el año o la duración no son números enteros
+                out.println("<script>alert('El año y la duración deben ser números enteros');</script>");
+            } catch (Exception e) {
+                // Mostramos una alerta en caso de error de base de datos
+                out.println("<script>alert('Error al acceder a la BD');</script>");
+            }
+        } else {
+            // Mostramos una alerta si hay campos vacíos
+            out.println("<script>alert('Todos los campos son obligatorios');</script>");
+        }
     }
+
 
     // ----formEditMovie----
     if (action.equals("formEditMovie")) {

@@ -58,6 +58,20 @@ th, td {
 .footer {
     text-align: center;
 }
+
+#add {
+  margin: 20px;
+  padding: 10px 20px;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  background-color: #555;
+}
+
+#add button:hover {
+  background-color: #777;
+}
+
 </style>
 </head>
 <body>
@@ -68,7 +82,13 @@ th, td {
   <nav>
     <button>Películas</button>
     <button>Personas</button>
-    <button>Otro menú</button>
-    <button>Otro menú</button>
+    <button>Act</button>
+    <button>Direct</button>
   </nav>
 </div>
+
+    <form action='index.jsp' method='post'>
+    <button id="add" type='submit' name='action' value='formNewMovie'>Añadir pelicula</button>
+    </form>
+
+</html>
