@@ -14,6 +14,22 @@
 
     // ----showAllMovies----
     if (action.equals("showAllMovies")) {
+        out.println("<form action='' method='post'>");
+        out.println("<button id='add' type='submit' name='action' value='formNewMovie'>Añadir película</button>");
+        out.println("</form>");
+        out.println("<style>");
+        out.println("#add {");
+        out.println("    margin: 20px;");
+        out.println("    padding: 10px 20px;");
+        out.println("    color: #fff;");
+        out.println("    text-decoration: none;");
+        out.println("    border-radius: 5px;");
+        out.println("    background-color: #555;");
+        out.println("}");
+        out.println("#add:hover {");
+        out.println("    background-color: #777;");
+        out.println("}");
+        out.println("</style>");
         try {
             // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -158,8 +174,6 @@
 
             if (rowsAffected > 0) {
                 response.sendRedirect("#");
-            } else {
-                out.println("BUZZZZZ");
             }
 
             // Cerramos los recursos
@@ -305,14 +319,95 @@
 
     // ----showAllPeople----
     if (action.equals("showAllPeople")) {
-        // Aquí irá el código para mostrar todas las personas
-        out.println("Opción en desarrollo: mostrará todas las personas de la base de datos.");
+            out.println("<form action='' method='post'>");
+            out.println("<button id='add' type='submit' name='action' value=''>Añadir persona</button>");
+            out.println("</form>");
+            out.println("<style>");
+            out.println("#add {");
+            out.println("    margin: 20px;");
+            out.println("    padding: 10px 20px;");
+            out.println("    color: #fff;");
+            out.println("    text-decoration: none;");
+            out.println("    border-radius: 5px;");
+            out.println("    background-color: #555;");
+            out.println("}");
+            out.println("#add:hover {");
+            out.println("    background-color: #777;");
+            out.println("}");
+            out.println("</style>");
+            try {
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un SELECT
+            Statement st = con.createStatement();
+            String sql = "SELECT * FROM people";
+            ResultSet rs = st.executeQuery(sql);
+
+            // Mostramos los resultados como una tabla HTML
+            out.println("<div class='container'><table align='center'>");
+            out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th><th colspan='3'>Acciones</th></tr></thead><tbody>");
+            while (rs.next()) {
+                out.print("<tr><td>" + rs.getInt("id") + "</td>");
+                out.print("<td>" + rs.getString("firstname") + "</td>");
+                out.print("<td>" + rs.getString("lastname") + "</td>");
+                out.print("<td>" + rs.getInt("yearOfBirth") + "</td>");
+                out.print("<td>" + rs.getString("country") + " </td>");
+                out.print("<td><img src='" + rs.getString("picture") + "' height='150px'></td>");
+                out.print("<form action='' method='post'>");
+                out.print("<input type='hidden' name='personId' value='" + rs.getInt("id") + "'>");
+                out.print("<td><button type='submit' name='action' value='showPerson'>Detalles</button></td>");
+                out.print("<td><button type='submit' name='action' value=''>Modificar</button></td>");
+                out.print("<td><button type='submit' name='action' value=''>Borrar</button></td>");
+                out.print("</form>");
+            }
+            out.println("</tbody></table></div>");
+            
+            // Lo cerramos todo
+            rs.close();
+            st.close();
+            con.close();
+        } catch (Exception e) {
+            out.println("Error al acceder a la BD: " + e.toString());
+        }
     }
 
     // ----showPerson----
     if (action.equals("showPerson")) {
-        // Aquí irá el código para mostrar una persona
-        out.println("Opción en desarrollo: mostrará los datos de una persona en concreto.");
+        String personId = request.getParameter("personId");
+
+        try {
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un SELECT para obtener los detalles de la película específica
+            String sql = "SELECT * FROM people WHERE id = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, personId);
+            ResultSet rs = ps.executeQuery();
+
+            // Mostramos los detalles de la película como una tabla HTML
+            if (rs.next()) {
+                out.println("<div class='container'><table align='center'>");
+                out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th></thead><tbody>");
+                out.print("<tr><td>" + rs.getInt("id") + "</td>");
+                out.print("<td>" + rs.getString("firstname") + "</td>");
+                out.print("<td>" + rs.getString("lastname") + "</td>");
+                out.print("<td>" + rs.getInt("yearOfBirth") + "</td>");
+                out.print("<td>" + rs.getString("country") + "</td>");
+                out.print("<td><img src='" + rs.getString("picture") + "' height='400px'></td>");
+                out.println("</tbody></table></div>");
+            }
+            
+            // Cerramos los recursos
+            rs.close();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            out.println("Error al acceder a la BD: " + e.toString());
+        }
     }
 
     // ----formNewPerson----

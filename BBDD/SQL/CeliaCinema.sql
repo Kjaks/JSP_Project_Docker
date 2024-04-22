@@ -47,9 +47,9 @@ INSERT INTO movies (id, title, year, duration, country, poster) VALUES
 
 
 INSERT INTO people (id, firstname, lastname, yearOfBirth, country, picture) VALUES
-(1, 'Actor1', 'Apellido1', 1980, 'Estados Unidos', 'actor1_foto.jpg'),
-(2, 'Actor2', 'Apellido2', 1990, 'Reino Unido', 'actor2_foto.jpg'),
-(3, 'Director1', 'Apellido3', 1975, 'España', 'director1_foto.jpg');
+(1, 'Actor1', 'Apellido1', 1980, 'Estados Unidos', 'https://covalto-production-website.s3.amazonaws.com/Hero_Mobile_Cuenta_Personas_V1_1_8046e424ea.webp'),
+(2, 'Actor2', 'Apellido2', 1990, 'Reino Unido', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSU7Zdi_F4g3uzBLLcHNEt64Oh2lJ-3po_rPV4GS2RFQ&s'),
+(3, 'Director1', 'Apellido3', 1975, 'España', 'https://mymodernmet.com/wp/wp-content/uploads/2019/09/100k-ai-faces-8.jpg');
 
 INSERT INTO act (idMovie, idPerson) VALUES
 (1, 1),

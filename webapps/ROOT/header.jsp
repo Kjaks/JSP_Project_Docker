@@ -64,18 +64,6 @@ th, td {
     text-align: center;
 }
 
-#add {
-  margin: 20px;
-  padding: 10px 20px;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  background-color: #555;
-}
-
-#add button:hover {
-  background-color: #777;
-}
 
 </style>
 </head>
@@ -91,7 +79,7 @@ th, td {
     </form>
 
     <form action='index.jsp' method='post'>
-      <button type='submit' name='action' value='showAllMovies'>Personas</button>
+      <button type='submit' name='action' value='showAllPeople'>Personas</button>
     </form>
 
     <form action='index.jsp' method='post'>
@@ -104,9 +92,5 @@ th, td {
 
   </nav>
 </div>
-
-    <form action='index.jsp' method='post'>
-    <button id="add" type='submit' name='action' value='formNewMovie'>Añadir pelicula</button>
-    </form>
 
 </html>
