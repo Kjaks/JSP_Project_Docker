@@ -50,6 +50,11 @@ th, td {
   background-color: #777;
 }
 
+.header nav form {
+  display: inline-block; 
+  margin-right: 10px; 
+}
+
 .container {
   margin: 20px;
   text-align: center;
@@ -80,10 +85,23 @@ th, td {
   <h1>CELIA CINEMA</h1>
   <p>Las mejores peliculas en Celia Cinema!</p>
   <nav>
-    <button>Películas</button>
-    <button>Personas</button>
-    <button>Act</button>
-    <button>Direct</button>
+  
+    <form action='index.jsp' method='post'>
+      <button type='submit' name='action' value='showAllMovies'>Películas</button>
+    </form>
+
+    <form action='index.jsp' method='post'>
+      <button type='submit' name='action' value='showAllMovies'>Personas</button>
+    </form>
+
+    <form action='index.jsp' method='post'>
+      <button type='submit' name='action' value='showAllMovies'>Act</button>
+    </form>
+
+    <form action='index.jsp' method='post'>
+      <button type='submit' name='action' value='showAllMovies'>Direct</button>
+    </form>
+
   </nav>
 </div>
 
