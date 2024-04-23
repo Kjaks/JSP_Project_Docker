@@ -110,30 +110,30 @@
     if (action.equals("formNewMovie")) {
         out.println("<div class='container'>");
         out.println("<h2>Nueva Película</h2>");
-        out.println("<form action='' method='post' onsubmit='return validateForm()'>");
+        out.println("<form action='' method='post' onsubmit='return validateMovieForm()'>");
         out.println("<label for='title'>Título:</label><br>");
         out.println("<input type='text' id='title' name='title'><br>");
         out.println("<label for='year'>Año:</label><br>");
-        out.println("<input type='text' id='year' name='year'><br>");
+        out.println("<input type='number' id='year' name='year'><br>");
         out.println("<label for='country'>País:</label><br>");
         out.println("<input type='text' id='country' name='country'><br>");
         out.println("<label for='duration'>Duración (minutos):</label><br>");
-        out.println("<input type='text' id='duration' name='duration'><br>");
+        out.println("<input type='number' id='duration' name='duration'><br>");
         out.println("<label for='poster'>URL del cartel:</label><br>");
         out.println("<input type='text' id='poster' name='poster'><br><br>");
         out.print("<button type='submit' name='action' value='newMovie'>Guardar</button>");
         out.println("</form>");
         out.println("</div>");
-    }
 
         // JavaScript para validar el formulario
         out.println("<script>");
-        out.println("function validateForm() {");
+        out.println("function validateMovieForm() {");
         out.println("var title = document.getElementById('title').value;");
         out.println("var year = document.getElementById('year').value;");
         out.println("var country = document.getElementById('country').value;");
         out.println("var duration = document.getElementById('duration').value;");
-        out.println("if (title === '' || year === '' || country === '' || duration === '') {");
+        out.println("var poster = document.getElementById('poster').value;");
+        out.println("if (title === '' || year === '' || country === '' || duration === '' || poster === '') {");
         out.println("alert('Todos los campos son obligatorios');");
         out.println("return false;"); // Evitar que se envíe el formulario si hay campos vacíos
         out.println("}");
@@ -144,6 +144,7 @@
         out.println("return true;"); // Enviar el formulario si todos los campos son válidos
         out.println("}");
         out.println("</script>");
+    }
 
     // ----newMovie----
     if (action.equals("newMovie")) {
@@ -218,7 +219,7 @@
                 out.println("</tbody></table>");
 
                 out.println("<h2>Editar Película</h2>");
-                out.println("<form action='' method='post' onsubmit='return validateForm()'>");
+                out.println("<form action='' method='post' onsubmit='return validateMovieForm()'>");
                 out.println("<label for='title'>Título:</label><br>");
                 out.print("<input type='hidden' name='movieId' value='" + movieId + "'>");
                 out.println("<input type='text' id='title' name='title' value = '" + title + "''><br>");
@@ -320,7 +321,7 @@
     // ----showAllPeople----
     if (action.equals("showAllPeople")) {
             out.println("<form action='' method='post'>");
-            out.println("<button id='add' type='submit' name='action' value=''>Añadir persona</button>");
+            out.println("<button id='add' type='submit' name='action' value='formNewPerson'>Añadir persona</button>");
             out.println("</form>");
             out.println("<style>");
             out.println("#add {");
@@ -410,16 +411,83 @@
         }
     }
 
-    // ----formNewPerson----
     if (action.equals("formNewPerson")) {
-        // Aquí irá el código para mostrar el formulario de nueva persona
-        out.println("Opción en desarrollo: mostrará un formulario para crear una nueva persona.");
+        out.println("<div class='container'>");
+        out.println("<h2>Nueva Película</h2>");
+        out.println("<form action='' method='post' onsubmit='return validatePersonForm()'>");
+        out.println("<label for='name'>Primer nombre:</label><br>");
+        out.println("<input type='text' id='name' name='name'><br>");
+        out.println("<label for='surname'>Apellidos</label><br>");
+        out.println("<input type='text' id='surname' name='surname'><br>");
+        out.println("<label for='year'>Año de nacimiento</label><br>");
+        out.println("<input type='number' id='year' name='year'><br>");
+        out.println("<label for='country'>País</label><br>");
+        out.println("<input type='text' id='country' name='country'><br>");
+        out.println("<label for='image'>Imagen</label><br>");
+        out.println("<input type='text' id='image' name='image'><br><br>");
+        out.print("<button type='submit' name='action' value='newPerson'>Guardar</button>");
+        out.println("</form>");
+        out.println("</div>");
+
+        // JavaScript para validar el formulario
+        out.println("<script>");
+        out.println("function validatePersonForm() {");
+        out.println("var name = document.getElementById('name').value;");
+        out.println("var surname = document.getElementById('surname').value;");
+        out.println("var year = document.getElementById('year').value;");
+        out.println("var country = document.getElementById('country').value;");
+        out.println("var image = document.getElementById('image').value;");
+        out.println("if (name === '' || country === '' || image === '' || surname === '' || year === '') {");
+        out.println("alert('Todos los campos son obligatorios');");
+        out.println("return false;"); // Evitar que se envíe el formulario si hay campos vacíos
+        out.println("}");
+        out.println("if (isNaN(year)) {");
+        out.println("alert('El año debe ser un número entero');");
+        out.println("return false;"); // Evitar que se envíe el formulario si el año no es un número
+        out.println("}");
+        out.println("return true;"); // Enviar el formulario si todos los campos son válidos
+        out.println("}");
+        out.println("</script>");
     }
+
 
     // ----newPerson----
     if (action.equals("newPerson")) {
-        // Aquí irá el código para crear una nueva persona
-        out.println("Opción en desarrollo: creará una nueva persona en la base de datos.");
+        String name = request.getParameter("name");
+        String surname = request.getParameter("surname");
+        String yearStr = request.getParameter("year");
+        String country = request.getParameter("country");
+        String image = request.getParameter("image");
+
+        try {
+            int year = Integer.parseInt(yearStr);
+
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un INSERT para agregar la nueva película
+            String sql = "INSERT INTO people (firstname, lastname, yearOfBirth, country, picture) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, name);
+            ps.setString(2, surname);
+            ps.setInt(3, year);
+            ps.setString(4, country);
+            ps.setString(5, image);
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+            response.sendRedirect("index.jsp?action=showAllPeople");
+            }
+
+            // Cerramos los recursos
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            // Mostramos una alerta en caso de error de base de datos
+            out.println("<script>alert('Error al acceder a la BD');</script>");
+        }
     }
 
     // Etc.
