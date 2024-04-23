@@ -12,6 +12,25 @@
 
     /**************** MOVIES *******************/
 
+    // JavaScript para validar el formulario
+    out.println("<script>");
+    out.println("function validateMovieForm() {");
+    out.println("var title = document.getElementById('title').value;");
+    out.println("var year = document.getElementById('year').value;");
+    out.println("var country = document.getElementById('country').value;");
+    out.println("var duration = document.getElementById('duration').value;");
+    out.println("var poster = document.getElementById('poster').value;");
+    out.println("if (title === '' || year === '' || country === '' || duration === '' || poster === '') {");
+    out.println("alert('Todos los campos son obligatorios');");
+    out.println("return false;"); // Evitar que se envíe el formulario si hay campos vacíos
+    out.println("}");
+    out.println("if (isNaN(year) || isNaN(duration)) {");
+    out.println("alert('El año y la duración deben ser números enteros');");
+    out.println("return false;"); // Evitar que se envíe el formulario si el año o la duración no son números
+    out.println("}");
+    out.println("return true;"); // Enviar el formulario si todos los campos son válidos
+    out.println("}");
+    out.println("</script>");
     // ----showAllMovies----
     if (action.equals("showAllMovies")) {
         out.println("<form action='' method='post'>");
@@ -124,26 +143,6 @@
         out.print("<button type='submit' name='action' value='newMovie'>Guardar</button>");
         out.println("</form>");
         out.println("</div>");
-
-        // JavaScript para validar el formulario
-        out.println("<script>");
-        out.println("function validateMovieForm() {");
-        out.println("var title = document.getElementById('title').value;");
-        out.println("var year = document.getElementById('year').value;");
-        out.println("var country = document.getElementById('country').value;");
-        out.println("var duration = document.getElementById('duration').value;");
-        out.println("var poster = document.getElementById('poster').value;");
-        out.println("if (title === '' || year === '' || country === '' || duration === '' || poster === '') {");
-        out.println("alert('Todos los campos son obligatorios');");
-        out.println("return false;"); // Evitar que se envíe el formulario si hay campos vacíos
-        out.println("}");
-        out.println("if (isNaN(year) || isNaN(duration)) {");
-        out.println("alert('El año y la duración deben ser números enteros');");
-        out.println("return false;"); // Evitar que se envíe el formulario si el año o la duración no son números
-        out.println("}");
-        out.println("return true;"); // Enviar el formulario si todos los campos son válidos
-        out.println("}");
-        out.println("</script>");
     }
 
     // ----newMovie----
@@ -224,11 +223,11 @@
                 out.print("<input type='hidden' name='movieId' value='" + movieId + "'>");
                 out.println("<input type='text' id='title' name='title' value = '" + title + "''><br>");
                 out.println("<label for='year'>Año:</label><br>");
-                out.println("<input type='text' id='year' name='year' value = '" + year + "'><br>");
+                out.println("<input type='number' id='year' name='year' value = '" + year + "'><br>");
                 out.println("<label for='country'>País:</label><br>");
                 out.println("<input type='text' id='country' name='country' value = '" + country + "'><br>");
                 out.println("<label for='duration'>Duración (minutos):</label><br>");
-                out.println("<input type='text' id='duration' name='duration' value = '" + duration + "'><br>");
+                out.println("<input type='number' id='duration' name='duration' value = '" + duration + "'><br>");
                 out.println("<label for='poster'>URL del cartel:</label><br>");
                 out.println("<input type='text' id='poster' name='poster' value = '" + poster + "''><br><br>");
                 out.print("<button type='submit' name='action' value='editMovie'>Guardar</button>");
@@ -317,6 +316,25 @@
 
 
     /**************** PEOPLE *******************/
+        // JavaScript para validar el formulario
+        out.println("<script>");
+        out.println("function validatePersonForm() {");
+        out.println("var name = document.getElementById('name').value;");
+        out.println("var surname = document.getElementById('surname').value;");
+        out.println("var year = document.getElementById('year').value;");
+        out.println("var country = document.getElementById('country').value;");
+        out.println("var image = document.getElementById('image').value;");
+        out.println("if (name === '' || country === '' || image === '' || surname === '' || year === '') {");
+        out.println("alert('Todos los campos son obligatorios');");
+        out.println("return false;"); // Evitar que se envíe el formulario si hay campos vacíos
+        out.println("}");
+        out.println("if (isNaN(year)) {");
+        out.println("alert('El año debe ser un número entero');");
+        out.println("return false;"); // Evitar que se envíe el formulario si el año no es un número
+        out.println("}");
+        out.println("return true;"); // Enviar el formulario si todos los campos son válidos
+        out.println("}");
+        out.println("</script>");
 
     // ----showAllPeople----
     if (action.equals("showAllPeople")) {
@@ -359,8 +377,8 @@
                 out.print("<form action='' method='post'>");
                 out.print("<input type='hidden' name='personId' value='" + rs.getInt("id") + "'>");
                 out.print("<td><button type='submit' name='action' value='showPerson'>Detalles</button></td>");
-                out.print("<td><button type='submit' name='action' value=''>Modificar</button></td>");
-                out.print("<td><button type='submit' name='action' value=''>Borrar</button></td>");
+                out.print("<td><button type='submit' name='action' value='formEditPerson'>Modificar</button></td>");
+                out.print("<td><button type='submit' name='action' value='deletePerson'>Borrar</button></td>");
                 out.print("</form>");
             }
             out.println("</tbody></table></div>");
@@ -398,7 +416,7 @@
                 out.print("<td>" + rs.getString("lastname") + "</td>");
                 out.print("<td>" + rs.getInt("yearOfBirth") + "</td>");
                 out.print("<td>" + rs.getString("country") + "</td>");
-                out.print("<td><img src='" + rs.getString("picture") + "' height='400px'></td>");
+                out.print("<td><img src='" + rs.getString("picture") + "' height='150px'></td>");
                 out.println("</tbody></table></div>");
             }
             
@@ -428,26 +446,6 @@
         out.print("<button type='submit' name='action' value='newPerson'>Guardar</button>");
         out.println("</form>");
         out.println("</div>");
-
-        // JavaScript para validar el formulario
-        out.println("<script>");
-        out.println("function validatePersonForm() {");
-        out.println("var name = document.getElementById('name').value;");
-        out.println("var surname = document.getElementById('surname').value;");
-        out.println("var year = document.getElementById('year').value;");
-        out.println("var country = document.getElementById('country').value;");
-        out.println("var image = document.getElementById('image').value;");
-        out.println("if (name === '' || country === '' || image === '' || surname === '' || year === '') {");
-        out.println("alert('Todos los campos son obligatorios');");
-        out.println("return false;"); // Evitar que se envíe el formulario si hay campos vacíos
-        out.println("}");
-        out.println("if (isNaN(year)) {");
-        out.println("alert('El año debe ser un número entero');");
-        out.println("return false;"); // Evitar que se envíe el formulario si el año no es un número
-        out.println("}");
-        out.println("return true;"); // Enviar el formulario si todos los campos son válidos
-        out.println("}");
-        out.println("</script>");
     }
 
 
@@ -490,7 +488,130 @@
         }
     }
 
-    // Etc.
+    if (action.equals("formEditPerson")) {
+        String personId = request.getParameter("personId");
+        try {
+        // Conectamos con la BD
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un SELECT para obtener los detalles de la película específica
+            String sql = "SELECT * FROM people WHERE id = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, personId);
+            ResultSet rs = ps.executeQuery();
+
+            // Mostramos los detalles de la película como una tabla HTML
+            if (rs.next()) {
+                String name = rs.getString("firstname");
+                String surname = rs.getString("lastname");
+                String year = rs.getString("yearOfBirth");
+                String country = rs.getString("country");
+                String image = rs.getString("picture");
+
+                out.println("<div class='container'><table align='center'>");
+                out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th></thead><tbody>");
+                out.print("<tr><td>" + rs.getInt("id") + "</td>");
+                out.print("<td>" + rs.getString("firstname") + "</td>");
+                out.print("<td>" + rs.getString("lastname") + "</td>");
+                out.print("<td>" + rs.getInt("yearOfBirth") + "</td>");
+                out.print("<td>" + rs.getString("country") + "</td>");
+                out.print("<td><img src='" + rs.getString("picture") + "' height='400px'></td>");
+                out.println("</tbody></table>");
+
+                out.println("<h2>Editar Persona</h2>");
+                out.println("<form action='' method='post' onsubmit='return validatePersonForm()'>");
+                out.println("<label for='title'>Nombre:</label><br>");
+                out.print("<input type='hidden' name='personId' value='" + personId + "'>");
+                out.println("<input type='text' id='name' name='name' value = '" + name + "''><br>");
+                out.println("<label for='surname'>Apellidos:</label><br>");
+                out.println("<input type='text' id='surname' name='surname' value = '" + surname + "'><br>");
+                out.println("<label for='year'>Año de nacimiento:</label><br>");
+                out.println("<input type='number' id='year' name='year' value = '" + year + "'><br>");
+                out.println("<label for='country'>Pais:</label><br>");
+                out.println("<input type='text' id='country' name='country' value = '" + country + "'><br>");
+                out.println("<label for='image'>URL de la imagen:</label><br>");
+                out.println("<input type='text' id='image' name='image' value = '" + image + "''><br><br>");
+                out.print("<button type='submit' name='action' value='editPerson'>Guardar</button>");
+                out.println("</form>");
+                out.println("</div>");
+            }
+            
+            // Cerramos los recursos
+            rs.close();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            out.println("Error al acceder a la BD: " + e.toString());
+        }
+    }
+
+    if (action.equals("editPerson")) {
+        String name = request.getParameter("name");
+        String surname = request.getParameter("surname");
+        String yearStr = request.getParameter("year");
+        String country = request.getParameter("country");
+        String image = request.getParameter("image");
+        String personId = request.getParameter("personId");
+
+        try {
+            int year = Integer.parseInt(yearStr);
+
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un INSERT para agregar la nueva película
+            String sql = "UPDATE people SET firstname = ?, lastname = ?, yearOfBirth = ?, country = ?, picture = ? WHERE id = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, name);
+            ps.setString(2, surname);
+            ps.setInt(3, year);
+            ps.setString(4, country);
+            ps.setString(5, image);
+            ps.setInt(6, Integer.parseInt(personId));
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+            response.sendRedirect("index.jsp?action=showAllPeople");
+            }
+
+            // Cerramos los recursos
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            // Mostramos una alerta en caso de error de base de datos
+            out.println("<script>alert('Error al acceder a la BD');</script>");
+        }
+    }
+
+    if (action.equals("deletePerson")) {
+        String personId = request.getParameter("personId");
+        try {
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un INSERT para agregar la nueva película
+            String sql = "DELETE FROM people WHERE id = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, Integer.parseInt(personId));
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                response.sendRedirect("index.jsp?action=showAllPeople");
+            }
+
+            // Cerramos los recursos
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            // Mostramos una alerta en caso de error de base de datos
+            out.println("<script>alert('Error al acceder a la BD');</script>");
+        }
+    }
 
 %>
 <%@include file="footer.jsp" %>
