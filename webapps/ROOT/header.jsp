@@ -82,14 +82,6 @@ th, td {
       <button type='submit' name='action' value='showAllPeople'>Personas</button>
     </form>
 
-    <form action='index.jsp' method='post'>
-      <button type='submit' name='action' value='showAllMovies'>Act</button>
-    </form>
-
-    <form action='index.jsp' method='post'>
-      <button type='submit' name='action' value='showAllMovies'>Direct</button>
-    </form>
-
   </nav>
 </div>
 

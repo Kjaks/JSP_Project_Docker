@@ -11,8 +11,6 @@ CREATE TABLE movies (
     poster VARCHAR(255)
 );
 
-DESCRIBE TABLE movies;
-
 CREATE TABLE people (
     id INT AUTO_INCREMENT PRIMARY KEY,
     firstname VARCHAR(100),
@@ -25,16 +23,16 @@ CREATE TABLE people (
 CREATE TABLE act (
     idMovie INT,
     idPerson INT,
-    FOREIGN KEY (idMovie) REFERENCES Movies(id),
-    FOREIGN KEY (idPerson) REFERENCES People(id),
+    FOREIGN KEY (idMovie) REFERENCES movies(id) ON DELETE CASCADE,
+    FOREIGN KEY (idPerson) REFERENCES people(id) ON DELETE CASCADE,
     PRIMARY KEY (idMovie, idPerson)
 );
 
 CREATE TABLE direct (
     idMovie INT,
     idPerson INT,
-    FOREIGN KEY (idMovie) REFERENCES Movies(id),
-    FOREIGN KEY (idPerson) REFERENCES People(id),
+    FOREIGN KEY (idMovie) REFERENCES movies(id) ON DELETE CASCADE,
+    FOREIGN KEY (idPerson) REFERENCES people(id) ON DELETE CASCADE,
     PRIMARY KEY (idMovie, idPerson)
 );
 
@@ -53,12 +51,7 @@ INSERT INTO people (id, firstname, lastname, yearOfBirth, country, picture) VALU
 
 INSERT INTO act (idMovie, idPerson) VALUES
 (1, 1),
-(1, 2),
-(2, 1),
-(3, 2);
+(1, 2);
 
 INSERT INTO direct (idMovie, idPerson) VALUES
-(1, 3),
-(2, 3);
-
-SELECT * FROM movies;
+(1, 3);
