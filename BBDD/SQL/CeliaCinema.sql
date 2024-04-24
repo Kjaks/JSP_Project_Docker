@@ -55,3 +55,5 @@ INSERT INTO act (idMovie, idPerson) VALUES
 
 INSERT INTO direct (idMovie, idPerson) VALUES
 (1, 3);
+
+SELECT people.* FROM people INNER JOIN act ON people.id = act.idPerson AND act.idMovie = 1
