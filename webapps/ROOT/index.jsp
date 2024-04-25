@@ -32,6 +32,8 @@
     out.println("return true;"); // Enviar el formulario si todos los campos son válidos
     out.println("}");
     out.println("</script>");
+
+    out.println("<script>function reloadPage() {window.location.reload();}</script>");
     // ----showAllMovies----
     if (action.equals("showAllMovies")) {
         out.println("<form action='' method='post'>");
@@ -92,9 +94,9 @@
     if (action.equals("showMovie")) {
         String movieId = request.getParameter("movieId");
 
-        out.println("<form action='' method='post'>");
-        out.println("<button id='add' type='submit' name='action' value='formNewParticipants'>Añadir participantes</button>");
-        out.print("<input type='hidden' name='movieId' value='" + movieId + "'>");
+        out.println("<form action='' method='post' id='actForm'>");
+        out.println("<button id='add' type='submit' name='action' value='formNewParticipants''>Añadir participantes</button>");
+        out.print("<input type='hidden' id='movieId' name='movieId' value='" + movieId + "'>");
         out.println("</form>");
         out.println("<style>");
         out.println("#add {");
@@ -109,7 +111,7 @@
         out.println("    background-color: #777;");
         out.println("}");
         out.println("</style>");
-    
+        
         try {
             // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -213,9 +215,57 @@
             st.close();
             con.close();
         } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+            out.println("<scriptError al acceder a la BD: " + e.toString());
         }
     }
+
+        out.println("<script>");
+        out.println("function addParticipant(movieId, personId) {");
+        out.println("    var xhr = new XMLHttpRequest();");
+        out.println("    xhr.open('POST', 'index.jsp', true);");
+        out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
+        out.println("    xhr.onreadystatechange = function() {");
+        out.println("        if (xhr.readyState === 4) {");
+        out.println("            if (xhr.status === 200) {");
+        out.println("                if (xhr.responseText.trim() === 'success') {");
+        out.println("                    alert('Participante agregado exitosamente');");
+        out.println("                } else {");
+        out.println("                    // Error al agregar el participante");
+        out.println("                    location.reload();");
+        out.println("                }");
+        out.println("            } else {");
+        out.println("                // Error en la solicitud AJAX");
+        out.println("                alert('Error en la solicitud AJAX: ' + xhr.statusText);");
+        out.println("            }");
+        out.println("        }");
+        out.println("    };");
+        out.println("    xhr.send('action=addAct&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
+        out.println("}");
+        out.println("</script>");
+
+        out.println("<script>");
+        out.println("function deleteParticipant(movieId, personId) {");
+        out.println("    var xhr = new XMLHttpRequest();");
+        out.println("    xhr.open('POST', 'index.jsp', true);");
+        out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
+        out.println("    xhr.onreadystatechange = function() {");
+        out.println("        if (xhr.readyState === 4) {");
+        out.println("            if (xhr.status === 200) {");
+        out.println("                if (xhr.responseText.trim() === 'success') {");
+        out.println("                    alert('Participante agregado exitosamente');");
+        out.println("                } else {");
+        out.println("                    // Error al agregar el participante");
+        out.println("                    location.reload();");
+        out.println("                }");
+        out.println("            } else {");
+        out.println("                // Error en la solicitud AJAX");
+        out.println("                alert('Error en la solicitud AJAX: ' + xhr.statusText);");
+        out.println("            }");
+        out.println("        }");
+        out.println("    };");
+        out.println("    xhr.send('action=deleteAct&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
+        out.println("}");
+        out.println("</script>");
 
     if (action.equals("formNewParticipants")){
         String movieId = request.getParameter("movieId");
@@ -246,11 +296,7 @@
                 out.print("<td>" + rs.getInt("yearOfBirth") + "</td>");
                 out.print("<td>" + rs.getString("country") + " </td>");
                 out.print("<td><img src='" + rs.getString("picture") + "' height='150px'></td>");
-                out.print("<form action='' method='post'>");
-                out.print("<input type='hidden' name='movieId' value='" + movieId + "'>");
-                out.print("<input type='hidden' name='personId' value='" + idPerson + "'>");
-                out.print("<td><button type='submit' name='action' value='addAct'>Añadir</button></td>");
-                out.print("</form>");
+                out.print("<td><button onclick='addParticipant(\"" + movieId + "\", \"" + idPerson + "\")'>Añadir</button></td>");
                 out.print("</tr>");
             }
             
@@ -285,12 +331,9 @@
                 out.print("<td>" + rs2.getInt("yearOfBirth") + "</td>");
                 out.print("<td>" + rs2.getString("country") + " </td>");
                 out.print("<td><img src='" + rs2.getString("picture") + "' height='150px'></td>");
-                out.print("<form action='' method='post'>");
-                out.print("<input type='hidden' name='movieId' value='" + movieId + "'>");
-                out.print("<input type='hidden' name='personId' value='" + idPerson + "'>");
-                out.print("<td><button type='submit' name='action' value='deleteAct'>Eliminar</button></td>");
-                out.print("</form>");
+                out.print("<td><button onclick='deleteParticipant(\"" + movieId + "\", \"" + idPerson + "\")'>Eliminar</button></td>");
                 out.print("</tr>");
+
             }
             
             out.println("</tbody></table>");
@@ -326,14 +369,38 @@
 
             int rowsAffected = ps.executeUpdate();
 
-            if (rowsAffected > 0) {
-                response.sendRedirect("index.jsp?action=formNewParticipants&movieId=" + movieId);
-                response.setHeader("Refresh", "0");
-            }
+            // Cerramos los recursos
+            ps.close();
+            con.close();
+            response.getWriter().write("success");
+        } catch (Exception e) {
+            // Mostramos una alerta en caso de error de base de datos
+            out.println("<script>alert('Error al acceder a la BD');</script>");
+        }
+    }
+
+    if (action.equals("deleteAct")){
+        String movieId = request.getParameter("movieId");
+        String personId = request.getParameter("personId");
+
+        try {
+
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un INSERT para agregar la nueva película
+            String sql = "INSERT INTO act (idMovie, idPerson) VALUES (?, ?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, movieId);
+            ps.setString(2, personId);
+
+            int rowsAffected = ps.executeUpdate();
 
             // Cerramos los recursos
             ps.close();
             con.close();
+            response.getWriter().write("success");
         } catch (Exception e) {
             // Mostramos una alerta en caso de error de base de datos
             out.println("<script>alert('Error al acceder a la BD');</script>");
