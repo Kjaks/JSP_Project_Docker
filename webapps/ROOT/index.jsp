@@ -232,18 +232,9 @@
         out.println("    xhr.onreadystatechange = function() {");
         out.println("        if (xhr.readyState === 4) {");
         out.println("            if (xhr.status === 200) {");
-        out.println("                if (xhr.responseText.trim() === 'success') {");
-        out.println("                    alert('Participante agregado exitosamente');");
-        out.println("                } else {");
-        out.println("                    // Error al agregar el participante");
         out.println("                    location.reload();");
         out.println("                }");
-        out.println("            } else {");
-        out.println("                // Error en la solicitud AJAX");
-        out.println("                alert('Error en la solicitud AJAX: ' + xhr.statusText);");
-        out.println("            }");
-        out.println("        }");
-        out.println("    };");
+        out.println("            }}");
         out.println("    xhr.send('action=addAct&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
         out.println("}");
         out.println("</script>");
@@ -256,18 +247,9 @@
         out.println("    xhr.onreadystatechange = function() {");
         out.println("        if (xhr.readyState === 4) {");
         out.println("            if (xhr.status === 200) {");
-        out.println("                if (xhr.responseText.trim() === 'success') {");
-        out.println("                    alert('Participante agregado exitosamente');");
-        out.println("                } else {");
-        out.println("                    // Error al agregar el participante");
         out.println("                    location.reload();");
         out.println("                }");
-        out.println("            } else {");
-        out.println("                // Error en la solicitud AJAX");
-        out.println("                alert('Error en la solicitud AJAX: ' + xhr.statusText);");
-        out.println("            }");
-        out.println("        }");
-        out.println("    };");
+        out.println("            }}");
         out.println("    xhr.send('action=deleteAct&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
         out.println("}");
         out.println("</script>");
@@ -357,6 +339,36 @@
         }
     }
 
+        out.println("<script>");
+        out.println("function addDirect(movieId, personId) {");
+        out.println("    var xhr = new XMLHttpRequest();");
+        out.println("    xhr.open('POST', 'index.jsp', true);");
+        out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
+        out.println("    xhr.onreadystatechange = function() {");
+        out.println("        if (xhr.readyState === 4) {");
+        out.println("            if (xhr.status === 200) {");
+        out.println("                    location.reload();");
+        out.println("                }");
+        out.println("            }}");
+        out.println("    xhr.send('action=addDirect&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
+        out.println("}");
+        out.println("</script>");
+
+        out.println("<script>");
+        out.println("function deleteDirect(movieId, personId) {");
+        out.println("    var xhr = new XMLHttpRequest();");
+        out.println("    xhr.open('POST', 'index.jsp', true);");
+        out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
+        out.println("    xhr.onreadystatechange = function() {");
+        out.println("        if (xhr.readyState === 4) {");
+        out.println("            if (xhr.status === 200) {");
+        out.println("                    location.reload();");
+        out.println("                }");
+        out.println("            }}");
+        out.println("    xhr.send('action=deleteDirect&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
+        out.println("}");
+        out.println("</script>");
+
     if (action.equals("formNewDirect")){
         String movieId = request.getParameter("movieId");
         try {
@@ -386,7 +398,7 @@
                 out.print("<td>" + rs.getInt("yearOfBirth") + "</td>");
                 out.print("<td>" + rs.getString("country") + " </td>");
                 out.print("<td><img src='" + rs.getString("picture") + "' height='150px'></td>");
-                out.print("<td><button onclick='addParticipant(\"" + movieId + "\", \"" + idPerson + "\")'>Añadir</button></td>");
+                out.print("<td><button onclick='addDirect(\"" + movieId + "\", \"" + idPerson + "\")'>Añadir</button></td>");
                 out.print("</tr>");
             }
             
@@ -422,7 +434,7 @@
                 out.print("<td>" + rs2.getInt("yearOfBirth") + "</td>");
                 out.print("<td>" + rs2.getString("country") + " </td>");
                 out.print("<td><img src='" + rs2.getString("picture") + "' height='150px'></td>");
-                out.print("<td><button onclick='deleteParticipant(\"" + movieId + "\", \"" + idPerson + "\")'>Eliminar</button></td>");
+                out.print("<td><button onclick='deleteDirect(\"" + movieId + "\", \"" + idPerson + "\")'>Eliminar</button></td>");
                 out.print("</tr>");
 
             }
@@ -482,6 +494,62 @@
 
             // Ejecutamos un INSERT para agregar la nueva película
             String sql = "DELETE FROM act WHERE idMovie = ? AND idPerson = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, movieId);
+            ps.setString(2, personId);
+
+            int rowsAffected = ps.executeUpdate();
+
+            // Cerramos los recursos
+            ps.close();
+            con.close();
+            response.getWriter().write("success");
+        } catch (Exception e) {
+            // Mostramos una alerta en caso de error de base de datos
+            out.println("<script>alert('Error al acceder a la BD');</script>");
+        }
+    }
+    
+    if (action.equals("addDirect")){
+        String movieId = request.getParameter("movieId");
+        String personId = request.getParameter("personId");
+
+        try {
+
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un INSERT para agregar la nueva película
+            String sql = "INSERT INTO direct (idMovie, idPerson) VALUES (?, ?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, movieId);
+            ps.setString(2, personId);
+
+            int rowsAffected = ps.executeUpdate();
+
+            // Cerramos los recursos
+            ps.close();
+            con.close();
+            response.getWriter().write("success");
+        } catch (Exception e) {
+            // Mostramos una alerta en caso de error de base de datos
+            out.println("<script>alert('Error al acceder a la BD');</script>");
+        }
+    }
+
+    if (action.equals("deleteDirect")){
+        String movieId = request.getParameter("movieId");
+        String personId = request.getParameter("personId");
+
+        try {
+
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un INSERT para agregar la nueva película
+            String sql = "DELETE FROM direct WHERE idMovie = ? AND idPerson = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, movieId);
             ps.setString(2, personId);
