@@ -95,7 +95,7 @@
         String movieId = request.getParameter("movieId");
 
         out.println("<form action='' method='post' id='actForm'>");
-        out.println("<button id='add' type='submit' name='action' value='formNewParticipants''>Añadir participantes</button>");
+        out.println("<button id='add' type='submit' name='action' value='formNewAct''>Añadir actores</button>");
         out.print("<input type='hidden' id='movieId' name='movieId' value='" + movieId + "'>");
         out.println("</form>");
         out.println("<style>");
@@ -112,6 +112,11 @@
         out.println("}");
         out.println("</style>");
         
+        out.println("<form action='' method='post' id='actForm'>");
+        out.println("<button id='add' type='submit' name='action' value='formNewDirect''>Añadir directores</button>");
+        out.print("<input type='hidden' id='movieId' name='movieId' value='" + movieId + "'>");
+        out.println("</form>");
+
         try {
             // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -267,9 +272,8 @@
         out.println("}");
         out.println("</script>");
 
-    if (action.equals("formNewParticipants")){
+    if (action.equals("formNewAct")){
         String movieId = request.getParameter("movieId");
-        out.println("<h2>Actuan</h2><style>h2 {text-align: center;}</style>");
         try {
             // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -286,8 +290,9 @@
             ResultSet rs = ps.executeQuery();
 
             // Mostramos los resultados como una tabla HTML
-            out.println("<div class='container'><table align='center'>");
+            out.println("<div class='container'><table align='left'>");
             out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th><th>Accion</th></tr></thead><tbody>");
+            out.println("<caption><h3>No actuan</h3></caption>");
             while (rs.next()) {
                 int idPerson = rs.getInt("id");
                 out.print("<tr><td>" + idPerson + "</td>");
@@ -321,8 +326,9 @@
             // Ejecutar la consulta
             ResultSet rs2 = ps2.executeQuery();
 
-            out.println("<div class='container'><table align='center'>");
+            out.println("<div class='container'><table align='right'>");
             out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th><th>Accion</th></tr></thead><tbody>");
+            out.println("<caption><h3>Actuan</h3></caption>");
             while (rs2.next()) {
                 int idPerson = rs2.getInt("id");
                 out.print("<tr><td>" + rs2.getInt("id") + "</td>");
@@ -344,12 +350,97 @@
             ps2.close();
             con2.close();
 
-            out.println("<h2>Dirigen</h2>");
+            
 
         } catch (Exception e) {
             out.println("Error al acceder a la BD: " + e.toString());
         }
     }
+
+    if (action.equals("formNewDirect")){
+        String movieId = request.getParameter("movieId");
+        try {
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Preparar la consulta SQL con un PreparedStatement
+            String sql = "SELECT people.* FROM people LEFT JOIN direct ON people.id = direct.idPerson AND direct.idMovie = ? WHERE direct.idPerson IS NULL";
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            // Establecer el valor del parámetro movieId en la consulta preparada
+            ps.setString(1, movieId);
+
+            // Ejecutar la consulta
+            ResultSet rs = ps.executeQuery();
+
+            // Mostramos los resultados como una tabla HTML
+            out.println("<div class='container'><table align='left'>");
+            out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th><th>Accion</th></tr></thead><tbody>");
+            out.println("<caption><h3>No dirigen</h3></caption>");
+            while (rs.next()) {
+                int idPerson = rs.getInt("id");
+                out.print("<tr><td>" + idPerson + "</td>");
+                out.print("<td>" + rs.getString("firstname") + "</td>");
+                out.print("<td>" + rs.getString("lastname") + "</td>");
+                out.print("<td>" + rs.getInt("yearOfBirth") + "</td>");
+                out.print("<td>" + rs.getString("country") + " </td>");
+                out.print("<td><img src='" + rs.getString("picture") + "' height='150px'></td>");
+                out.print("<td><button onclick='addParticipant(\"" + movieId + "\", \"" + idPerson + "\")'>Añadir</button></td>");
+                out.print("</tr>");
+            }
+            
+            out.println("</tbody></table>");
+
+            out.println("</div>");
+
+            rs.close();
+            ps.close();
+            con.close();
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con2 = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Preparar la consulta SQL con un PreparedStatement
+            String sql2 = "SELECT people.* FROM people INNER JOIN direct ON people.id = direct.idPerson AND direct.idMovie = ?";
+            PreparedStatement ps2 = con2.prepareStatement(sql2);
+
+            // Establecer el valor del parámetro movieId en la consulta preparada
+            ps2.setString(1, movieId);
+
+            // Ejecutar la consulta
+            ResultSet rs2 = ps2.executeQuery();
+
+            out.println("<div class='container'><table align='right'>");
+            out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th><th>Accion</th></tr></thead><tbody>");
+            out.println("<caption><h3>Dirigen</h3></caption>");
+            while (rs2.next()) {
+                int idPerson = rs2.getInt("id");
+                out.print("<tr><td>" + rs2.getInt("id") + "</td>");
+                out.print("<td>" + rs2.getString("firstname") + "</td>");
+                out.print("<td>" + rs2.getString("lastname") + "</td>");
+                out.print("<td>" + rs2.getInt("yearOfBirth") + "</td>");
+                out.print("<td>" + rs2.getString("country") + " </td>");
+                out.print("<td><img src='" + rs2.getString("picture") + "' height='150px'></td>");
+                out.print("<td><button onclick='deleteParticipant(\"" + movieId + "\", \"" + idPerson + "\")'>Eliminar</button></td>");
+                out.print("</tr>");
+
+            }
+            
+            out.println("</tbody></table>");
+
+            out.println("</div>");
+
+            rs2.close();
+            ps2.close();
+            con2.close();
+
+            
+
+        } catch (Exception e) {
+            out.println("Error al acceder a la BD: " + e.toString());
+        }
+    }    
 
     if (action.equals("addAct")){
         String movieId = request.getParameter("movieId");
@@ -390,7 +481,7 @@
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
             // Ejecutamos un INSERT para agregar la nueva película
-            String sql = "INSERT INTO act (idMovie, idPerson) VALUES (?, ?)";
+            String sql = "DELETE FROM act WHERE idMovie = ? AND idPerson = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, movieId);
             ps.setString(2, personId);

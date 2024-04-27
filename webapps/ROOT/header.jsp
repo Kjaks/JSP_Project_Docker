@@ -62,7 +62,7 @@ th, td {
 
 .footer {
     text-align: center;
-
+    width: 100%;
 }
 
 
