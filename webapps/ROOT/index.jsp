@@ -52,6 +52,12 @@
         out.println("    background-color: #777;");
         out.println("}");
         out.println("</style>");
+        out.println("<form action='' method='post'>");
+        out.println("<label for=''>Busqueda de peliculas:</label><br>");
+        out.println("<input type='text' id='search' name='search'><br>");
+        out.println("<button type='submit' name='action' value='searchMovie'>Buscar</button>");
+        out.println("</form>");
+
         try {
             // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -78,6 +84,40 @@
                 out.print("<td><button type='submit' name='action' value='formEditMovie'>Modificar</button></td>");
                 out.print("<td><button type='submit' name='action' value='deleteMovie'>Borrar</button></td>");
                 out.print("</form>");
+            }
+            out.println("</tbody></table></div>");
+            
+            // Lo cerramos todo
+            rs.close();
+            st.close();
+            con.close();
+        } catch (Exception e) {
+            out.println("Error al acceder a la BD: " + e.toString());
+        }
+    }
+
+    if (action.equals("searchMovie")) {
+        String search = request.getParameter("search");
+        try {
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un SELECT
+            Statement st = con.createStatement();
+            String sql = "SELECT * FROM movies WHERE title LIKE '%" + search + "%'";
+            ResultSet rs = st.executeQuery(sql);
+
+            // Mostramos los resultados como una tabla HTML
+            out.println("<div class='container'><table align='center'>");
+            out.println("<thead><tr><th>ID</th><th>Título</th><th>Año</th><th>País</th><th>Duración</th><th>Cartel</th></tr></thead><tbody>");
+            while (rs.next()) {
+                out.print("<tr><td>" + rs.getInt("id") + "</td>");
+                out.print("<td>" + rs.getString("title") + "</td>");
+                out.print("<td>" + rs.getInt("year") + "</td>");
+                out.print("<td>" + rs.getString("country") + "</td>");
+                out.print("<td>" + rs.getInt("duration") + " min</td>");
+                out.print("<td><img src='" + rs.getString("poster") + "' height='400px'></td>");
             }
             out.println("</tbody></table></div>");
             
@@ -587,7 +627,7 @@
         out.println("</div>");
     }
 
-    // ----newMovie----
+    // ----newMovie---- 
     if (action.equals("newMovie")) {
         String title = request.getParameter("title");
         String yearStr = request.getParameter("year");
@@ -861,6 +901,73 @@
                 out.print("<td><img src='" + rs.getString("picture") + "' height='150px'></td>");
                 out.println("</tbody></table></div>");
             }
+            
+            // Cerramos los recursos
+            rs.close();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            out.println("Error al acceder a la BD: " + e.toString());
+        }
+
+        try {
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un SELECT para obtener los detalles de la película específica
+            String sql = "SELECT * FROM movies INNER JOIN act ON movies.id = act.idMovie WHERE idPerson = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, personId);
+            ResultSet rs = ps.executeQuery();
+
+            out.println("<div class='container'><table align='center'>");
+            out.println("<thead><tr><th>ID</th><th>Título</th><th>Año</th><th>País</th><th>Duración</th><th>Cartel</th></tr></thead><tbody>");
+            out.println("<h2>Actua en<h2>");
+            // Mostramos los detalles de la película como una tabla HTML
+            while (rs.next()) {
+                out.print("<tr><td>" + rs.getString("id") + "</td>");
+                out.print("<td>" + rs.getString("title") + "</td>");
+                out.print("<td>" + rs.getString("year") + "</td>");
+                out.print("<td>" + rs.getString("country") + "</td>");
+                out.print("<td>" + rs.getString("duration") + " min</td>");
+                out.print("<td><img src='" + rs.getString("poster") + "' height='150px'></td>");
+            }
+            out.println("</tbody></table></div>");
+
+            
+            // Cerramos los recursos
+            rs.close();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            out.println("Error al acceder a la BD: " + e.toString());
+        }
+        try {
+            // Conectamos con la BD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
+
+            // Ejecutamos un SELECT para obtener los detalles de la película específica
+            String sql = "SELECT * FROM movies INNER JOIN direct ON movies.id = direct.idMovie WHERE idPerson = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, personId);
+            ResultSet rs = ps.executeQuery();
+
+            out.println("<div class='container'><table align='center'>");
+            out.println("<thead><tr><th>ID</th><th>Título</th><th>Año</th><th>País</th><th>Duración</th><th>Cartel</th></tr></thead><tbody>");
+            out.println("<h2>Dirige<h2>");
+            // Mostramos los detalles de la película como una tabla HTML
+            while (rs.next()) {
+                out.print("<tr><td>" + rs.getString("id") + "</td>");
+                out.print("<td>" + rs.getString("title") + "</td>");
+                out.print("<td>" + rs.getString("year") + "</td>");
+                out.print("<td>" + rs.getString("country") + "</td>");
+                out.print("<td>" + rs.getString("duration") + " min</td>");
+                out.print("<td><img src='" + rs.getString("poster") + "' height='150px'></td>");
+            }
+            out.println("</tbody></table></div>");
+
             
             // Cerramos los recursos
             rs.close();
