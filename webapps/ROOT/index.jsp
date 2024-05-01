@@ -1,19 +1,28 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.sql.*" %>
-<%@page import="java.util.Enumeration" %>
 <%@include file="header.jsp" %>
 <% 
-    // Vamos a ver si en la petición se nos ha indicado acción y controlador.
-    // Si no, usaremos un controlador y una acción por defecto.
+/**
+ * This JSP file serves as the main controller for managing movies.
+ * It handles various actions related to movies such as displaying all movies,
+ * adding new movies, editing existing ones, and deleting movies.
+ */
+
+    /**
+     * Let's check if an action and controller have been provided in the request.
+     * If not, we'll use a default controller and action.
+    */
     String action = request.getParameter("action");    
 
     if ((action == null) || action.equals("")) {
-        action = "showAllMovies";       // Acción por defecto
+        action = "showAllMovies";
     }
 
     /**************** MOVIES *******************/
 
-    // JavaScript para validar el formulario
+    /**
+     * JavaScript form validation
+    */
     out.println("<script>");
     out.println("function validateMovieForm() {");
     out.println("var title = document.getElementById('title').value;");
@@ -23,18 +32,30 @@
     out.println("var poster = document.getElementById('poster').value;");
     out.println("if (title === '' || year === '' || country === '' || duration === '' || poster === '') {");
     out.println("alert('Todos los campos son obligatorios');");
-    out.println("return false;"); // Evitar que se envíe el formulario si hay campos vacíos
+    out.println("return false;"); 
     out.println("}");
     out.println("if (isNaN(year) || isNaN(duration)) {");
     out.println("alert('El año y la duración deben ser números enteros');");
-    out.println("return false;"); // Evitar que se envíe el formulario si el año o la duración no son números
+    out.println("return false;"); 
     out.println("}");
-    out.println("return true;"); // Enviar el formulario si todos los campos son válidos
+    out.println("return true;");
     out.println("}");
     out.println("</script>");
 
+    /**
+     * This functions reload the page after an action is performed
+    */
     out.println("<script>function reloadPage() {window.location.reload();}</script>");
-    // ----showAllMovies----
+
+    /**
+     * This method generates HTML content for displaying all movies and providing options for movie management.
+     * If the action is "showAllMovies", it displays a form for adding a new movie, a search form,
+     * and a table listing all movies with options to view details, edit, and delete each movie.
+     * 
+     * @param action The action parameter from the HTTP request.
+     * @return The PrintWriter object for writing HTML content to the response.
+     * @throws SQLException If a database access error occurs or this method is called on a closed connection.
+     */
     if (action.equals("showAllMovies")) {
         out.println("<form action='' method='post'>");
         out.println("<button id='add' type='submit' name='action' value='formNewMovie'>Añadir película</button>");
@@ -59,16 +80,13 @@
         out.println("</form>");
 
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT
             Statement st = con.createStatement();
             String sql = "SELECT * FROM movies";
             ResultSet rs = st.executeQuery(sql);
 
-            // Mostramos los resultados como una tabla HTML
             out.println("<div class='container'><table align='center'>");
             out.println("<thead><tr><th>ID</th><th>Título</th><th>Año</th><th>País</th><th>Duración</th><th>Cartel</th><th colspan='3'>Acciones</th></tr></thead><tbody>");
             while (rs.next()) {
@@ -87,28 +105,34 @@
             }
             out.println("</tbody></table></div>");
             
-            // Lo cerramos todo
             rs.close();
             st.close();
             con.close();
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
+    /**
+     * This method generates HTML content for displaying search results based on the movie title.
+     * If the action is "searchMovie", it retrieves the search query from the request parameters,
+     * queries the database for movies matching the search query, and displays the results in a table.
+     * 
+     * @param action The action parameter from the HTTP request.
+     * @param request The HttpServletRequest object containing the request parameters.
+     * @return The PrintWriter object for writing HTML content to the response.
+     * @throws SQLException If a database access error occurs or this method is called on a closed connection.
+     */
     if (action.equals("searchMovie")) {
         String search = request.getParameter("search");
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT
             Statement st = con.createStatement();
             String sql = "SELECT * FROM movies WHERE title LIKE '%" + search + "%'";
             ResultSet rs = st.executeQuery(sql);
 
-            // Mostramos los resultados como una tabla HTML
             out.println("<div class='container'><table align='center'>");
             out.println("<thead><tr><th>ID</th><th>Título</th><th>Año</th><th>País</th><th>Duración</th><th>Cartel</th></tr></thead><tbody>");
             while (rs.next()) {
@@ -121,16 +145,26 @@
             }
             out.println("</tbody></table></div>");
             
-            // Lo cerramos todo
             rs.close();
             st.close();
             con.close();
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
-    // ----showMovie----
+    /**
+     * This method generates HTML content for displaying details of a specific movie,
+     * including its title, year, country, duration, poster, actors, and directors.
+     * If the action is "showMovie", it retrieves the movie ID from the request parameters,
+     * queries the database to fetch movie details and associated actors and directors,
+     * and displays the information in separate tables. Also provides options to add/remove actors and directors.
+     * 
+     * @param action The action parameter from the HTTP request.
+     * @param request The HttpServletRequest object containing the request parameters.
+     * @return The PrintWriter object for writing HTML content to the response.
+     * @throws SQLException If a database access error occurs or this method is called on a closed connection.
+    */
     if (action.equals("showMovie")) {
         String movieId = request.getParameter("movieId");
 
@@ -158,17 +192,14 @@
         out.println("</form>");
 
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT para obtener los detalles de la película específica
             String sql = "SELECT * FROM movies WHERE id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, movieId);
             ResultSet rs = ps.executeQuery();
 
-            // Mostramos los detalles de la película como una tabla HTML
             if (rs.next()) {
                 out.println("<div class='container'><table align='center'>");
                 out.println("<thead><tr><th>ID</th><th>Título</th><th>Año</th><th>País</th><th>Duración</th><th>Cartel</th></tr></thead><tbody>");
@@ -181,28 +212,23 @@
                 out.println("</tbody></table></div>");
             }
             
-            // Cerramos los recursos
             rs.close();
             ps.close();
             con.close();
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
 
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT
             Statement st = con.createStatement();
             String sql = "SELECT * FROM people INNER JOIN act ON people.id = act.idPerson WHERE act.idMovie = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, movieId);
-            ResultSet rs = ps.executeQuery(); // Utiliza ps.executeQuery() en lugar de st.executeQuery(sql)
+            ResultSet rs = ps.executeQuery();
 
-
-            // Mostramos los resultados como una tabla HTML
             out.println("<h2>Actores</h2><style>h2 {text-align: center;}</style>");
             out.println("<div class='container'><table align='center'>");
             out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th></tr></thead><tbody>");
@@ -218,27 +244,22 @@
             }
             out.println("</tbody></table></div>");
             
-            // Lo cerramos todo
             rs.close();
             st.close();
             con.close();
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT
             Statement st = con.createStatement();
             String sql = "SELECT * FROM people INNER JOIN direct ON people.id = direct.idPerson WHERE direct.idMovie = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, movieId);
-            ResultSet rs = ps.executeQuery(); // Utiliza ps.executeQuery() en lugar de st.executeQuery(sql)
+            ResultSet rs = ps.executeQuery(); 
 
-
-            // Mostramos los resultados como una tabla HTML
             out.println("<h2>Director/es</h2><style>        h2 {text-align: center;}</style>");
             out.println("<div class='container'><table align='center'>");
             out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th></tr></thead><tbody>");
@@ -255,63 +276,72 @@
             }
             out.println("</tbody></table></div>");
             
-            // Lo cerramos todo
             rs.close();
             st.close();
             con.close();
-        } catch (Exception e) {
-            out.println("<scriptError al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
-        out.println("<script>");
-        out.println("function addParticipant(movieId, personId) {");
-        out.println("    var xhr = new XMLHttpRequest();");
-        out.println("    xhr.open('POST', 'index.jsp', true);");
-        out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
-        out.println("    xhr.onreadystatechange = function() {");
-        out.println("        if (xhr.readyState === 4) {");
-        out.println("            if (xhr.status === 200) {");
-        out.println("                    location.reload();");
-        out.println("                }");
-        out.println("            }}");
-        out.println("    xhr.send('action=addAct&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
-        out.println("}");
-        out.println("</script>");
+    /**
+     * This JavaScript block contains functions for adding and deleting participants (actors) to/from a movie.
+     */
+    out.println("<script>");
+    out.println("function addParticipant(movieId, personId) {");
+    out.println("    var xhr = new XMLHttpRequest();");
+    out.println("    xhr.open('POST', 'index.jsp', true);");
+    out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
+    out.println("    xhr.onreadystatechange = function() {");
+    out.println("        if (xhr.readyState === 4) {");
+    out.println("            if (xhr.status === 200) {");
+    out.println("                    location.reload();");
+    out.println("                }");
+    out.println("            }}");
+    out.println("    xhr.send('action=addAct&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
+    out.println("}");
+    out.println("</script>");
 
-        out.println("<script>");
-        out.println("function deleteParticipant(movieId, personId) {");
-        out.println("    var xhr = new XMLHttpRequest();");
-        out.println("    xhr.open('POST', 'index.jsp', true);");
-        out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
-        out.println("    xhr.onreadystatechange = function() {");
-        out.println("        if (xhr.readyState === 4) {");
-        out.println("            if (xhr.status === 200) {");
-        out.println("                    location.reload();");
-        out.println("                }");
-        out.println("            }}");
-        out.println("    xhr.send('action=deleteAct&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
-        out.println("}");
-        out.println("</script>");
+    out.println("<script>");
+    out.println("function deleteParticipant(movieId, personId) {");
+    out.println("    var xhr = new XMLHttpRequest();");
+    out.println("    xhr.open('POST', 'index.jsp', true);");
+    out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
+    out.println("    xhr.onreadystatechange = function() {");
+    out.println("        if (xhr.readyState === 4) {");
+    out.println("            if (xhr.status === 200) {");
+    out.println("                    location.reload();");
+    out.println("                }");
+    out.println("            }}");
+    out.println("    xhr.send('action=deleteAct&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
+    out.println("}");
+    out.println("</script>");
 
+    /**
+     * This method generates HTML content for displaying a form to add new actors to a movie.
+     * If the action is "formNewAct", it retrieves the movie ID from the request parameters,
+     * queries the database to fetch existing actors who are not associated with the movie yet,
+     * and displays them with an option to add them to the movie.
+     * It also lists the actors already associated with the movie and provides an option to delete them.
+     * 
+     * @param action The action parameter from the HTTP request.
+     * @param request The HttpServletRequest object containing the request parameters.
+     * @return The PrintWriter object for writing HTML content to the response.
+     * @throws IOException If an I/O exception occurs while writing the response.
+     */
     if (action.equals("formNewAct")){
         String movieId = request.getParameter("movieId");
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Preparar la consulta SQL con un PreparedStatement
             String sql = "SELECT people.* FROM people LEFT JOIN act ON people.id = act.idPerson AND act.idMovie = ? WHERE act.idPerson IS NULL";
             PreparedStatement ps = con.prepareStatement(sql);
 
-            // Establecer el valor del parámetro movieId en la consulta preparada
             ps.setString(1, movieId);
 
-            // Ejecutar la consulta
             ResultSet rs = ps.executeQuery();
 
-            // Mostramos los resultados como una tabla HTML
             out.println("<div class='container'><table align='left'>");
             out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th><th>Accion</th></tr></thead><tbody>");
             out.println("<caption><h3>No actuan</h3></caption>");
@@ -338,14 +368,11 @@
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con2 = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Preparar la consulta SQL con un PreparedStatement
             String sql2 = "SELECT people.* FROM people INNER JOIN act ON people.id = act.idPerson AND act.idMovie = ?";
             PreparedStatement ps2 = con2.prepareStatement(sql2);
 
-            // Establecer el valor del parámetro movieId en la consulta preparada
             ps2.setString(1, movieId);
 
-            // Ejecutar la consulta
             ResultSet rs2 = ps2.executeQuery();
 
             out.println("<div class='container'><table align='right'>");
@@ -374,59 +401,69 @@
 
             
 
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
-        out.println("<script>");
-        out.println("function addDirect(movieId, personId) {");
-        out.println("    var xhr = new XMLHttpRequest();");
-        out.println("    xhr.open('POST', 'index.jsp', true);");
-        out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
-        out.println("    xhr.onreadystatechange = function() {");
-        out.println("        if (xhr.readyState === 4) {");
-        out.println("            if (xhr.status === 200) {");
-        out.println("                    location.reload();");
-        out.println("                }");
-        out.println("            }}");
-        out.println("    xhr.send('action=addDirect&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
-        out.println("}");
-        out.println("</script>");
+    /**
+     * This JavaScript block contains functions for adding and deleting participants (directors) to/from a movie.
+     */
+    out.println("<script>");
+    out.println("function addDirect(movieId, personId) {");
+    out.println("    var xhr = new XMLHttpRequest();");
+    out.println("    xhr.open('POST', 'index.jsp', true);");
+    out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
+    out.println("    xhr.onreadystatechange = function() {");
+    out.println("        if (xhr.readyState === 4) {");
+    out.println("            if (xhr.status === 200) {");
+    out.println("                    location.reload();");
+    out.println("                }");
+    out.println("            }}");
+    out.println("    xhr.send('action=addDirect&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
+    out.println("}");
+    out.println("</script>");
 
-        out.println("<script>");
-        out.println("function deleteDirect(movieId, personId) {");
-        out.println("    var xhr = new XMLHttpRequest();");
-        out.println("    xhr.open('POST', 'index.jsp', true);");
-        out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
-        out.println("    xhr.onreadystatechange = function() {");
-        out.println("        if (xhr.readyState === 4) {");
-        out.println("            if (xhr.status === 200) {");
-        out.println("                    location.reload();");
-        out.println("                }");
-        out.println("            }}");
-        out.println("    xhr.send('action=deleteDirect&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
-        out.println("}");
-        out.println("</script>");
+    out.println("<script>");
+    out.println("function deleteDirect(movieId, personId) {");
+    out.println("    var xhr = new XMLHttpRequest();");
+    out.println("    xhr.open('POST', 'index.jsp', true);");
+    out.println("    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');");
+    out.println("    xhr.onreadystatechange = function() {");
+    out.println("        if (xhr.readyState === 4) {");
+    out.println("            if (xhr.status === 200) {");
+    out.println("                    location.reload();");
+    out.println("                }");
+    out.println("            }}");
+    out.println("    xhr.send('action=deleteDirect&movieId=' + encodeURIComponent(movieId) + '&personId=' + encodeURIComponent(personId));");
+    out.println("}");
+    out.println("</script>");
 
+    /**
+     * This method generates HTML content for displaying a form to add new directors to a movie and lists existing directors of the movie.
+     * If the action is "formNewDirect", it retrieves the movie ID from the request parameters,
+     * queries the database to fetch existing directors who are not associated with the movie yet,
+     * and displays them with an option to add them to the movie.
+     * It also lists the directors already associated with the movie and provides an option to delete them.
+     * 
+     * @param action The action parameter from the HTTP request.
+     * @param request The HttpServletRequest object containing the request parameters.
+     * @return The PrintWriter object for writing HTML content to the response.
+     * @throws SQLException If a database access error occurs or this method is called on a closed connection.
+     */
     if (action.equals("formNewDirect")){
         String movieId = request.getParameter("movieId");
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Preparar la consulta SQL con un PreparedStatement
             String sql = "SELECT people.* FROM people LEFT JOIN direct ON people.id = direct.idPerson AND direct.idMovie = ? WHERE direct.idPerson IS NULL";
             PreparedStatement ps = con.prepareStatement(sql);
 
-            // Establecer el valor del parámetro movieId en la consulta preparada
             ps.setString(1, movieId);
 
-            // Ejecutar la consulta
             ResultSet rs = ps.executeQuery();
 
-            // Mostramos los resultados como una tabla HTML
             out.println("<div class='container'><table align='left'>");
             out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th><th>Accion</th></tr></thead><tbody>");
             out.println("<caption><h3>No dirigen</h3></caption>");
@@ -453,14 +490,11 @@
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con2 = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Preparar la consulta SQL con un PreparedStatement
             String sql2 = "SELECT people.* FROM people INNER JOIN direct ON people.id = direct.idPerson AND direct.idMovie = ?";
             PreparedStatement ps2 = con2.prepareStatement(sql2);
 
-            // Establecer el valor del parámetro movieId en la consulta preparada
             ps2.setString(1, movieId);
 
-            // Ejecutar la consulta
             ResultSet rs2 = ps2.executeQuery();
 
             out.println("<div class='container'><table align='right'>");
@@ -489,22 +523,28 @@
 
             
 
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }    
 
+    /**
+     * This method adds a new actor to a movie in the database.
+     * If the action is "addAct", it retrieves the movie ID and actor ID from the request parameters,
+     * inserts a new record into the 'act' table associating the actor with the movie.
+     * 
+     * @param action The action parameter from the HTTP request.
+     * @param request The HttpServletRequest object containing the request parameters.
+     * @throws SQLException If a database access error occurs or this method is called on a closed connection.
+     */
     if (action.equals("addAct")){
         String movieId = request.getParameter("movieId");
         String personId = request.getParameter("personId");
 
         try {
-
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un INSERT para agregar la nueva película
             String sql = "INSERT INTO act (idMovie, idPerson) VALUES (?, ?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, movieId);
@@ -512,27 +552,31 @@
 
             int rowsAffected = ps.executeUpdate();
 
-            // Cerramos los recursos
             ps.close();
             con.close();
             response.getWriter().write("success");
-        } catch (Exception e) {
-            // Mostramos una alerta en caso de error de base de datos
+        } catch (SQLException e) {
             out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
+    /**
+     * Deletes the association between an actor and a movie from the database.
+     * If the action is "deleteAct", it retrieves the movie ID and actor ID from the request parameters,
+     * deletes the corresponding record from the 'act' table.
+     * 
+     * @param action The action parameter from the HTTP request.
+     * @param request The HttpServletRequest object containing the request parameters.
+     * @throws SQLException If a database access error occurs or this method is called on a closed connection.
+     */
     if (action.equals("deleteAct")){
         String movieId = request.getParameter("movieId");
         String personId = request.getParameter("personId");
 
         try {
-
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un INSERT para agregar la nueva película
             String sql = "DELETE FROM act WHERE idMovie = ? AND idPerson = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, movieId);
@@ -540,27 +584,32 @@
 
             int rowsAffected = ps.executeUpdate();
 
-            // Cerramos los recursos
             ps.close();
             con.close();
             response.getWriter().write("success");
-        } catch (Exception e) {
-            // Mostramos una alerta en caso de error de base de datos
+        } catch (SQLException e) {
             out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
     
+    /**
+     * Adds a new director to a movie in the database.
+     * If the action is "addDirect", it retrieves the movie ID and director ID from the request parameters,
+     * inserts a new record into the 'direct' table associating the director with the movie.
+     * 
+     * @param action The action parameter from the HTTP request.
+     * @param request The HttpServletRequest object containing the request parameters.
+     * @throws SQLException If a database access error occurs or this method is called on a closed connection.
+     */
     if (action.equals("addDirect")){
         String movieId = request.getParameter("movieId");
         String personId = request.getParameter("personId");
 
         try {
 
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un INSERT para agregar la nueva película
             String sql = "INSERT INTO direct (idMovie, idPerson) VALUES (?, ?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, movieId);
@@ -568,27 +617,31 @@
 
             int rowsAffected = ps.executeUpdate();
 
-            // Cerramos los recursos
             ps.close();
             con.close();
             response.getWriter().write("success");
-        } catch (Exception e) {
-            // Mostramos una alerta en caso de error de base de datos
+        } catch (SQLException e) {
             out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
+    /**
+     * Deletes the association between a director and a movie from the database.
+     * If the action is "deleteDirect", it retrieves the movie ID and director ID from the request parameters,
+     * deletes the corresponding record from the 'direct' table.
+     * 
+     * @param action The action parameter from the HTTP request.
+     * @param request The HttpServletRequest object containing the request parameters.
+     * @throws SQLException If a database access error occurs or this method is called on a closed connection.
+     */
     if (action.equals("deleteDirect")){
         String movieId = request.getParameter("movieId");
         String personId = request.getParameter("personId");
 
         try {
-
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un INSERT para agregar la nueva película
             String sql = "DELETE FROM direct WHERE idMovie = ? AND idPerson = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, movieId);
@@ -596,18 +649,22 @@
 
             int rowsAffected = ps.executeUpdate();
 
-            // Cerramos los recursos
             ps.close();
             con.close();
             response.getWriter().write("success");
-        } catch (Exception e) {
-            // Mostramos una alerta en caso de error de base de datos
+        } catch (SQLException e) {
             out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
     
-
-    // ----formNewMovie----
+    /**
+     * Displays a form for creating a new movie.
+     * If the action is "formNewMovie", it generates HTML code for a form to input details of a new movie,
+     * including title, year, country, duration, and poster URL.
+     * 
+     * @param action The action parameter from the HTTP request.
+     * @return The PrintWriter object for writing HTML content to the response.
+     */
     if (action.equals("formNewMovie")) {
         out.println("<div class='container'>");
         out.println("<h2>Nueva Película</h2>");
@@ -627,7 +684,14 @@
         out.println("</div>");
     }
 
-    // ----newMovie---- 
+    /**
+     * Inserts a new movie into the database.
+     * If the action is "newMovie", retrieves the movie details from the HTTP request parameters,
+     * including title, year, country, duration, and poster URL. Then validates and inserts
+     * these details into the "movies" database table.
+     *
+     * @param action The action passed as a parameter in the HTTP request.
+     */
     if (action.equals("newMovie")) {
         String title = request.getParameter("title");
         String yearStr = request.getParameter("year");
@@ -639,11 +703,9 @@
             int year = Integer.parseInt(yearStr);
             int duration = Integer.parseInt(durationStr);
 
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un INSERT para agregar la nueva película
             String sql = "INSERT INTO movies (title, year, duration, country, poster) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, title);
@@ -655,33 +717,35 @@
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
-                response.sendRedirect("#");
+                response.sendRedirect("index.jsp");
             }
 
-            // Cerramos los recursos
             ps.close();
             con.close();
-        } catch (Exception e) {
-            // Mostramos una alerta en caso de error de base de datos
+        } catch (SQLException e) {
             out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     } 
 
-    // ----formEditMovie----
+    /**
+     * Prepares the form to edit movie details.
+     * If the action is "formEditMovie", retrieves the movie details from the database based on the provided movie ID.
+     * Constructs an HTML form pre-filled with the existing movie details to allow editing.
+     * 
+     * @param action The action passed as a parameter in the HTTP request.
+     * @return The PrintWriter object for writing HTML content to the response.
+     */
     if (action.equals("formEditMovie")) {
             String movieId = request.getParameter("movieId");
             try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT para obtener los detalles de la película específica
             String sql = "SELECT * FROM movies WHERE id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, movieId);
             ResultSet rs = ps.executeQuery();
 
-            // Mostramos los detalles de la película como una tabla HTML
             if (rs.next()) {
                 String title = rs.getString("title");
                 String year = rs.getString("year");
@@ -717,16 +781,23 @@
                 out.println("</div>");
             }
             
-            // Cerramos los recursos
             rs.close();
             ps.close();
             con.close();
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
-    // ----editMovie----
+    /**
+     * Edits the details of a movie based on the provided parameters.
+     * If the action is "editMovie", retrieves the movie details from the HTTP request parameters.
+     * Parses the year and duration strings into integers.
+     * Updates the corresponding movie record in the database with the new details.
+     * Redirects to the index.jsp page after successful update.
+     * 
+     * @param action The action passed as a parameter in the HTTP request.
+     */
     if (action.equals("editMovie")) {
         String title = request.getParameter("title");
         String yearStr = request.getParameter("year");
@@ -739,11 +810,9 @@
             int year = Integer.parseInt(yearStr);
             int duration = Integer.parseInt(durationStr);
 
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un INSERT para agregar la nueva película
             String sql = "UPDATE movies SET title = ?, year = ?, duration = ?, country = ?, poster = ? WHERE id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, title);
@@ -756,27 +825,30 @@
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
-                response.sendRedirect("#");
+                response.sendRedirect("index.jsp");
             }
 
-            // Cerramos los recursos
             ps.close();
             con.close();
-        } catch (Exception e) {
-            // Mostramos una alerta en caso de error de base de datos
+        } catch (SQLException e) {
             out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
-    // ----deleteMovie----
+    /**
+     * Deletes a movie from the database based on the provided movie ID.
+     * If the action is "deleteMovie", retrieves the movie ID from the HTTP request parameters.
+     * Deletes the corresponding movie record from the database.
+     * Redirects to the index.jsp page after successful deletion.
+     * 
+     * @param action The action passed as a parameter in the HTTP request.
+     */
     if (action.equals("deleteMovie")) {
         String movieId = request.getParameter("movieId");
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un INSERT para agregar la nueva película
             String sql = "DELETE FROM movies WHERE id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, Integer.parseInt(movieId));
@@ -784,41 +856,49 @@
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
-                response.sendRedirect("#");
+                response.sendRedirect("index.jsp");
             }
 
-            // Cerramos los recursos
             ps.close();
             con.close();
-        } catch (Exception e) {
-            // Mostramos una alerta en caso de error de base de datos
+        } catch (SQLException e) {
             out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
 
     /**************** PEOPLE *******************/
-        // JavaScript para validar el formulario
-        out.println("<script>");
-        out.println("function validatePersonForm() {");
-        out.println("var name = document.getElementById('name').value;");
-        out.println("var surname = document.getElementById('surname').value;");
-        out.println("var year = document.getElementById('year').value;");
-        out.println("var country = document.getElementById('country').value;");
-        out.println("var image = document.getElementById('image').value;");
-        out.println("if (name === '' || country === '' || image === '' || surname === '' || year === '') {");
-        out.println("alert('Todos los campos son obligatorios');");
-        out.println("return false;"); // Evitar que se envíe el formulario si hay campos vacíos
-        out.println("}");
-        out.println("if (isNaN(year)) {");
-        out.println("alert('El año debe ser un número entero');");
-        out.println("return false;"); // Evitar que se envíe el formulario si el año no es un número
-        out.println("}");
-        out.println("return true;"); // Enviar el formulario si todos los campos son válidos
-        out.println("}");
-        out.println("</script>");
+    /**
+     * JavaScript form validation
+    */
+    out.println("<script>");
+    out.println("function validatePersonForm() {");
+    out.println("var name = document.getElementById('name').value;");
+    out.println("var surname = document.getElementById('surname').value;");
+    out.println("var year = document.getElementById('year').value;");
+    out.println("var country = document.getElementById('country').value;");
+    out.println("var image = document.getElementById('image').value;");
+    out.println("if (name === '' || country === '' || image === '' || surname === '' || year === '') {");
+    out.println("alert('Todos los campos son obligatorios');");
+    out.println("return false;"); 
+    out.println("}");
+    out.println("if (isNaN(year)) {");
+    out.println("alert('El año debe ser un número entero');");
+    out.println("return false;"); 
+    out.println("}");
+    out.println("return true;");
+    out.println("}");
+    out.println("</script>");
 
-    // ----showAllPeople----
+    /**
+     * Displays all people stored in the database.
+     * If the action is "showAllPeople", retrieves people data from the database.
+     * Generates HTML markup to display people information in a table format.
+     * Provides options to add, view details, edit, and delete a person.
+     * 
+     * @param action The action passed as a parameter in the HTTP request.
+     * @return The PrintWriter object for writing HTML content to the response.
+     */
     if (action.equals("showAllPeople")) {
             out.println("<form action='' method='post'>");
             out.println("<button id='add' type='submit' name='action' value='formNewPerson'>Añadir persona</button>");
@@ -837,16 +917,13 @@
             out.println("}");
             out.println("</style>");
             try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT
             Statement st = con.createStatement();
             String sql = "SELECT * FROM people";
             ResultSet rs = st.executeQuery(sql);
 
-            // Mostramos los resultados como una tabla HTML
             out.println("<div class='container'><table align='center'>");
             out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th><th colspan='3'>Acciones</th></tr></thead><tbody>");
             while (rs.next()) {
@@ -865,31 +942,34 @@
             }
             out.println("</tbody></table></div>");
             
-            // Lo cerramos todo
             rs.close();
             st.close();
             con.close();
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
-    // ----showPerson----
+    /**
+     * Displays details of a specific person and the movies they participate in or direct.
+     * If the action is "showPerson", retrieves person data and related movie information from the database.
+     * Generates HTML markup to display person details and the movies they act in or direct.
+     * 
+     * @param action The action passed as a parameter in the HTTP request.
+     * @return The PrintWriter object for writing HTML content to the response.
+     */
     if (action.equals("showPerson")) {
         String personId = request.getParameter("personId");
 
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT para obtener los detalles de la película específica
             String sql = "SELECT * FROM people WHERE id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, personId);
             ResultSet rs = ps.executeQuery();
 
-            // Mostramos los detalles de la película como una tabla HTML
             if (rs.next()) {
                 out.println("<div class='container'><table align='center'>");
                 out.println("<thead><tr><th>ID</th><th>Primer Nombre</th><th>Apellidos</th><th>Año de nacimiento</th><th>Pais</th><th>Imagen</th></thead><tbody>");
@@ -902,20 +982,17 @@
                 out.println("</tbody></table></div>");
             }
             
-            // Cerramos los recursos
             rs.close();
             ps.close();
             con.close();
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
 
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT para obtener los detalles de la película específica
             String sql = "SELECT * FROM movies INNER JOIN act ON movies.id = act.idMovie WHERE idPerson = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, personId);
@@ -924,7 +1001,6 @@
             out.println("<div class='container'><table align='center'>");
             out.println("<thead><tr><th>ID</th><th>Título</th><th>Año</th><th>País</th><th>Duración</th><th>Cartel</th></tr></thead><tbody>");
             out.println("<h2>Actua en<h2>");
-            // Mostramos los detalles de la película como una tabla HTML
             while (rs.next()) {
                 out.print("<tr><td>" + rs.getString("id") + "</td>");
                 out.print("<td>" + rs.getString("title") + "</td>");
@@ -935,20 +1011,16 @@
             }
             out.println("</tbody></table></div>");
 
-            
-            // Cerramos los recursos
             rs.close();
             ps.close();
             con.close();
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT para obtener los detalles de la película específica
             String sql = "SELECT * FROM movies INNER JOIN direct ON movies.id = direct.idMovie WHERE idPerson = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, personId);
@@ -957,7 +1029,6 @@
             out.println("<div class='container'><table align='center'>");
             out.println("<thead><tr><th>ID</th><th>Título</th><th>Año</th><th>País</th><th>Duración</th><th>Cartel</th></tr></thead><tbody>");
             out.println("<h2>Dirige<h2>");
-            // Mostramos los detalles de la película como una tabla HTML
             while (rs.next()) {
                 out.print("<tr><td>" + rs.getString("id") + "</td>");
                 out.print("<td>" + rs.getString("title") + "</td>");
@@ -967,20 +1038,25 @@
                 out.print("<td><img src='" + rs.getString("poster") + "' height='150px'></td>");
             }
             out.println("</tbody></table></div>");
-
-            
-            // Cerramos los recursos
+   
             rs.close();
             ps.close();
             con.close();
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
+    /**
+     * Displays a form for adding a new person.
+     * If the action is "formNewPerson", generates HTML markup for a form to input details of a new person.
+     * 
+     * @param action The action passed as a parameter in the HTTP request.
+     * @return The PrintWriter object for writing HTML content to the response.
+     */
     if (action.equals("formNewPerson")) {
         out.println("<div class='container'>");
-        out.println("<h2>Nueva Película</h2>");
+        out.println("<h2>Nueva Persona</h2>");
         out.println("<form action='' method='post' onsubmit='return validatePersonForm()'>");
         out.println("<label for='name'>Primer nombre:</label><br>");
         out.println("<input type='text' id='name' name='name'><br>");
@@ -997,8 +1073,12 @@
         out.println("</div>");
     }
 
-
-    // ----newPerson----
+    /**
+     * Adds a new person to the database.
+     * If the action is "newPerson", retrieves parameters from the HTTP request to create a new person entry in the database.
+     * 
+     * @param action The action passed as a parameter in the HTTP request.
+     */
     if (action.equals("newPerson")) {
         String name = request.getParameter("name");
         String surname = request.getParameter("surname");
@@ -1009,11 +1089,9 @@
         try {
             int year = Integer.parseInt(yearStr);
 
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un INSERT para agregar la nueva película
             String sql = "INSERT INTO people (firstname, lastname, yearOfBirth, country, picture) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, name);
@@ -1025,32 +1103,34 @@
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
-            response.sendRedirect("index.jsp?action=showAllPeople");
+                response.sendRedirect("index.jsp");
             }
 
-            // Cerramos los recursos
             ps.close();
             con.close();
-        } catch (Exception e) {
-            // Mostramos una alerta en caso de error de base de datos
+        } catch (SQLException e) {
             out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
+    /**
+     * Displays a form to edit a person's details.
+     * If the action is "formEditPerson", retrieves the person's details from the database based on the provided person ID and displays a form to edit those details.
+     * 
+     * @param action The action passed as a parameter in the HTTP request.
+     * @return The PrintWriter object for writing HTML content to the response.
+     */
     if (action.equals("formEditPerson")) {
         String personId = request.getParameter("personId");
         try {
-        // Conectamos con la BD
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un SELECT para obtener los detalles de la película específica
             String sql = "SELECT * FROM people WHERE id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, personId);
             ResultSet rs = ps.executeQuery();
 
-            // Mostramos los detalles de la película como una tabla HTML
             if (rs.next()) {
                 String name = rs.getString("firstname");
                 String surname = rs.getString("lastname");
@@ -1086,15 +1166,20 @@
                 out.println("</div>");
             }
             
-            // Cerramos los recursos
             rs.close();
             ps.close();
             con.close();
-        } catch (Exception e) {
-            out.println("Error al acceder a la BD: " + e.toString());
+        } catch (SQLException e) {
+            out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
+    /**
+     * Edits the details of a person.
+     * If the action is "editPerson", updates the details of a person in the database based on the provided person ID.
+     * 
+     * @param action The action passed as a parameter in the HTTP request.
+     */
     if (action.equals("editPerson")) {
         String name = request.getParameter("name");
         String surname = request.getParameter("surname");
@@ -1106,11 +1191,9 @@
         try {
             int year = Integer.parseInt(yearStr);
 
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un INSERT para agregar la nueva película
             String sql = "UPDATE people SET firstname = ?, lastname = ?, yearOfBirth = ?, country = ?, picture = ? WHERE id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, name);
@@ -1123,26 +1206,28 @@
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
-            response.sendRedirect("index.jsp?action=showAllPeople");
+                response.sendRedirect("index.jsp");
             }
 
-            // Cerramos los recursos
             ps.close();
             con.close();
-        } catch (Exception e) {
-            // Mostramos una alerta en caso de error de base de datos
+        } catch (SQLException e) {
             out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }
 
+    /**
+     * Deletes a person from the database.
+     * If the action is "deletePerson", deletes the person record from the database based on the provided person ID.
+     * 
+     * @param action The action passed as a parameter in the HTTP request.
+     */
     if (action.equals("deletePerson")) {
         String personId = request.getParameter("personId");
         try {
-            // Conectamos con la BD
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://mysql:3306/CeliaCinema", "root", "ADMIN");
 
-            // Ejecutamos un INSERT para agregar la nueva película
             String sql = "DELETE FROM people WHERE id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, Integer.parseInt(personId));
@@ -1150,14 +1235,12 @@
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
-                response.sendRedirect("index.jsp?action=showAllPeople");
+                response.sendRedirect("index.jsp");
             }
 
-            // Cerramos los recursos
             ps.close();
             con.close();
-        } catch (Exception e) {
-            // Mostramos una alerta en caso de error de base de datos
+        } catch (SQLException e) {
             out.println("<script>alert('Error al acceder a la BD');</script>");
         }
     }

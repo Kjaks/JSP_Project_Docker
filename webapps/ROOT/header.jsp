@@ -1,3 +1,12 @@
+<% 
+/**
+ * This HTML file represents a simple webpage for displaying movies and people information.
+ * It includes a header with navigation buttons for movies and people, a container for content display,
+ * and a footer.
+ *
+ * @author Karolis Jakas Stirbyte
+ */
+%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="es">
@@ -64,8 +73,6 @@ th, td {
     text-align: center;
     width: 100%;
 }
-
-
 
 </style>
 </head>
